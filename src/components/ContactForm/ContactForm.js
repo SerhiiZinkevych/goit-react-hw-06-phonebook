@@ -9,12 +9,12 @@ const ContactForm = ({ onFormSubmit }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const reset = () => {
+  function reset() {
     setName('');
     setNumber('');
-  };
+  }
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
 
     if (!name || !number) {
@@ -23,7 +23,15 @@ const ContactForm = ({ onFormSubmit }) => {
 
     onFormSubmit({ name, number });
     reset();
-  };
+  }
+  function handleChange(e) {
+    const { value, name } = e.target;
+    if (name === 'name') {
+      setName(value);
+    } else if (name === 'number') {
+      setNumber(value);
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit} className={`${styles.form} container shadow`}>
@@ -34,7 +42,7 @@ const ContactForm = ({ onFormSubmit }) => {
           value={name}
           name="name"
           required
-          onChange={(e) => setName(e.target.value)}
+          onChange={handleChange}
         />
       </label>
       <label htmlFor="number">
@@ -59,7 +67,7 @@ const ContactForm = ({ onFormSubmit }) => {
           name="number"
           required
           value={number}
-          onChange={(e) => setNumber(e.target.value)}
+          onChange={handleChange}
           placeholder="Enter a phone number"
         />
       </label>
