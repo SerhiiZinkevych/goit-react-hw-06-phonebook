@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import withRenderLog from '../../hocs/withRenderLog';
 
 // Styles
 import styles from './ContactElement.module.css';
@@ -30,4 +29,4 @@ ContactElement.propTypes = {
   onDeleteContact: PropTypes.func.isRequired,
 };
 
-export default withRenderLog(ContactElement);
+export default ContactElement;
