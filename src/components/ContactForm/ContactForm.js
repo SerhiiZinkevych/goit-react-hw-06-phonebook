@@ -1,91 +1,75 @@
 // Core
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import MaskedInput from 'react-text-mask';
 import PropTypes from 'prop-types';
 // Styles
 import styles from './ContactForm.module.css';
 
-class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
+const ContactForm = ({ onFormSubmit }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const reset = () => {
+    setName('');
+    setNumber('');
   };
 
-  static propTypes = {
-    onFormSubmit: PropTypes.func.isRequired,
-  };
-
-  handleChange = (e) => {
-    const { name, value } = e.target;
-
-    this.setState({ [name]: value });
-  };
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!this.state.name || !this.state.number) {
+    if (!name || !number) {
       return;
     }
 
-    this.props.onFormSubmit({ ...this.state });
-    this.reset();
+    onFormSubmit({ name, number });
+    reset();
   };
 
-  reset() {
-    this.setState({
-      name: '',
-      number: '',
-    });
-  }
+  return (
+    <form onSubmit={handleSubmit} className={`${styles.form} container shadow`}>
+      <label htmlFor="name">
+        Name
+        <input
+          type="text"
+          value={name}
+          name="name"
+          required
+          onChange={(e) => setName(e.target.value)}
+        />
+      </label>
+      <label htmlFor="number">
+        Number
+        <MaskedInput
+          mask={[
+            '(',
+            /\d/,
+            /\d/,
+            /\d/,
+            ')',
+            ' ',
+            /\d/,
+            /\d/,
+            /\d/,
+            '-',
+            /\d/,
+            /\d/,
+            /\d/,
+            /\d/,
+          ]}
+          name="number"
+          required
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+          placeholder="Enter a phone number"
+        />
+      </label>
+      <button type="submit">Add contact</button>
+    </form>
+  );
+};
 
-  render() {
-    const { name, number } = this.state;
-    return (
-      <form
-        onSubmit={this.handleSubmit}
-        className={`${styles.form} container shadow`}
-      >
-        <label htmlFor="name">
-          Name
-          <input
-            type="text"
-            value={name}
-            name="name"
-            required
-            onChange={this.handleChange}
-          />
-        </label>
-        <label htmlFor="number">
-          Number
-          <MaskedInput
-            mask={[
-              '(',
-              /\d/,
-              /\d/,
-              /\d/,
-              ')',
-              ' ',
-              /\d/,
-              /\d/,
-              /\d/,
-              '-',
-              /\d/,
-              /\d/,
-              /\d/,
-              /\d/,
-            ]}
-            name="number"
-            required
-            value={number}
-            onChange={this.handleChange}
-            placeholder="Enter a phone number"
-          />
-        </label>
-        <button type="submit">Add contact</button>
-      </form>
-    );
-  }
-}
+ContactForm.propTypes = {
+  onFormSubmit: PropTypes.func.isRequired,
+};
 
 export default ContactForm;
