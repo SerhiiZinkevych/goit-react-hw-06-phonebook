@@ -23,9 +23,9 @@ function PhoneBook({ contacts, filter, onAddContact, fetchContacts }) {
   const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
-    const contacts = Storage.getContactsFromLS();
-    if (contacts) {
-      fetchContacts(contacts);
+    const contactsLS = Storage.getContactsFromLS();
+    if (contactsLS) {
+      fetchContacts(contactsLS);
     }
   }, [fetchContacts]);
 
