@@ -1,5 +1,5 @@
 // Core
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { CSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
@@ -18,45 +18,22 @@ import popTransition from '../../transitions/pop.module.css';
 
 import 'normalize.css';
 
-class PhoneBook extends Component {
-  state = {
-    message: '',
-    showMessage: false,
-  };
+function PhoneBook({ contacts, filter, onAddContact, fetchContacts }) {
+  const [message, setMessage] = useState('');
+  const [showMessage, setShowMessage] = useState(false);
 
-  static propTypes = {
-    contacts: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        number: PropTypes.string.isRequired,
-      }).isRequired,
-    ).isRequired,
-    filter: PropTypes.string.isRequired,
-    onAddContact: PropTypes.func.isRequired,
-    fetchContacts: PropTypes.func.isRequired,
-  };
-
-  componentDidMount() {
-    const { fetchContacts } = this.props;
+  useEffect(() => {
     const contacts = Storage.getContactsFromLS();
-
     if (contacts) {
       fetchContacts(contacts);
     }
-  }
+  }, [fetchContacts]);
 
-  componentDidUpdate(prevProps) {
-    const { contacts } = this.props;
+  useEffect(() => {
+    Storage.saveContactsToLS(contacts);
+  }, [contacts]);
 
-    if (prevProps.contacts !== contacts) {
-      Storage.saveContactsToLS(contacts);
-    }
-  }
-
-  handleFormSubmit = (formData) => {
-    const { contacts, onAddContact } = this.props;
-
+  const handleFormSubmit = (formData) => {
     const contactToAdd = {
       id: uuidv4(),
       name: formData.name,
@@ -64,9 +41,10 @@ class PhoneBook extends Component {
     };
 
     if (contacts.find((contact) => contact.name === contactToAdd.name)) {
-      this.setState({ showMessage: true, message: 'Contact already exists!' });
+      setMessage('Contact already exists!');
+      setShowMessage(true);
       setTimeout(() => {
-        this.setState({ showMessage: false });
+        setShowMessage(false);
       }, 2000);
       return;
     }
@@ -74,44 +52,52 @@ class PhoneBook extends Component {
     onAddContact(contactToAdd);
   };
 
-  render() {
-    const { message, showMessage } = this.state;
-    const { contacts, filter } = this.props;
+  return (
+    <div className="container">
+      <CSSTransition
+        in={showMessage}
+        timeout={200}
+        classNames={slideFromRightTransition}
+        unmountOnExit
+      >
+        <Notification message={message} />
+      </CSSTransition>
 
-    return (
-      <div className="container">
-        <CSSTransition
-          in={showMessage}
-          timeout={200}
-          classNames={slideFromRightTransition}
-          unmountOnExit
-        >
-          <Notification message={message} />
-        </CSSTransition>
+      <CSSTransition
+        in
+        appear
+        timeout={500}
+        classNames={slideFromLeftTransition}
+      >
+        <h1 className={styles.title}>Phonebook</h1>
+      </CSSTransition>
 
-        <CSSTransition
-          in
-          appear
-          timeout={500}
-          classNames={slideFromLeftTransition}
-        >
-          <h1 className={styles.title}>Phonebook</h1>
-        </CSSTransition>
+      <ContactForm onFormSubmit={handleFormSubmit} />
+      <CSSTransition
+        in={contacts.length > 1 || filter.length > 0}
+        timeout={200}
+        classNames={popTransition}
+        unmountOnExit
+      >
+        <Filter />
+      </CSSTransition>
 
-        <ContactForm onFormSubmit={this.handleFormSubmit} />
-        <CSSTransition
-          in={contacts.length > 1 || filter.length > 0}
-          timeout={200}
-          classNames={popTransition}
-          unmountOnExit
-        >
-          <Filter />
-        </CSSTransition>
-
-        <ContactList />
-      </div>
-    );
-  }
+      <ContactList />
+    </div>
+  );
 }
+
+PhoneBook.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    }).isRequired,
+  ).isRequired,
+  filter: PropTypes.string.isRequired,
+  onAddContact: PropTypes.func.isRequired,
+  fetchContacts: PropTypes.func.isRequired,
+};
 
 export default PhoneBook;

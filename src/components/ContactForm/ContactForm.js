@@ -24,14 +24,6 @@ const ContactForm = ({ onFormSubmit }) => {
     onFormSubmit({ name, number });
     reset();
   }
-  function handleChange(e) {
-    const { value, name } = e.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
-    }
-  }
 
   return (
     <form onSubmit={handleSubmit} className={`${styles.form} container shadow`}>
@@ -42,7 +34,7 @@ const ContactForm = ({ onFormSubmit }) => {
           value={name}
           name="name"
           required
-          onChange={handleChange}
+          onChange={({ target }) => setName(target.value)}
         />
       </label>
       <label htmlFor="number">
@@ -67,7 +59,7 @@ const ContactForm = ({ onFormSubmit }) => {
           name="number"
           required
           value={number}
-          onChange={handleChange}
+          onChange={({ target }) => setNumber(target.value)}
           placeholder="Enter a phone number"
         />
       </label>
